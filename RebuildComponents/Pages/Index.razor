@@ -1,0 +1,19 @@
+﻿@page "/"
+
+<div class="flex-column">
+    <SelectCountry @ref="@_selectCountry" WithFlag="true" SelectedValue="@_currentCountry" OnChange="async() => {await OnCountryChange(); }" />
+    <span>@_currentCountry</span>
+@*    <img src="@(_selectCountry.FlagPng)" />*@
+</div>
+
+
+@code {
+    private string _currentCountry { get; set; } = "BR";
+    private SelectCountry? _selectCountry { get; set; } = new SelectCountry();
+
+    private async Task OnCountryChange()
+    {
+        _currentCountry = _selectCountry is null ? string.Empty : _selectCountry.SelectedValue;
+        await InvokeAsync(StateHasChanged);
+    }
+}

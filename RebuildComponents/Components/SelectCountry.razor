@@ -1,0 +1,67 @@
+﻿@using SimpleCountry
+
+<select @onchange="OnChangeIntern">
+    @if (_countries is not null)
+    {
+        @foreach (var country in _countries)
+        {
+            var flag = country.Flags.Png;
+            <option value="@(country.Alpha2Code)" selected="@(SelectedValue == country.Alpha2Code)">
+                @(country.Name.Common)
+            </option>
+        }
+    }
+
+</select>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; } = "Countries";
+
+    [Parameter]
+    public bool WithFlag { get; set; } = true;
+
+    [Parameter]
+    public string SelectedValue { get; set; } = string.Empty;
+
+    [Parameter]
+    public Action? OnChange { get; set; }
+
+    public string FlagPng
+    {
+        get { return string.IsNullOrEmpty(SelectedValue) ? string.Empty : _selectedCountry.Flags.Png; }
+    }
+
+    public string Region
+    {
+        get { return string.IsNullOrEmpty(SelectedValue) ? string.Empty : _selectedCountry.Region; }
+    }
+
+    public string SubRegion
+    {
+        get { return string.IsNullOrEmpty(SelectedValue) ? string.Empty : _selectedCountry.SubRegion; }
+    }
+
+    private ICountryService _countryService { get; set; } = new CountryService();
+    private IEnumerable<Country>? _countries { get; set; }
+    private Country? _selectedCountry { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _countries = _countryService.GetAll();
+    }
+
+    private void OnChangeIntern(ChangeEventArgs e)
+    {
+        SelectedValue = e.Value is not null ? e.Value.ToString() : string.Empty;
+
+        if (string.IsNullOrEmpty(SelectedValue) == false)
+        {
+            _selectedCountry = _countries.FirstOrDefault(x => x.Alpha2Code == SelectedValue);
+        }
+
+        if (OnChange is not null)
+            OnChange();
+    }
+
+}
